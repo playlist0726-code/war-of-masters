@@ -11,11 +11,13 @@ colors:
   panel: "#0C1824"
   line: "#243443"
   teal: "#52C9C2"
+rounded:
+  control: 14px
+  card: 20px
+  feature: 28px
 omitted:
   - section: typography
     reason: The repository does not define named shared typography tokens.
-  - section: rounded
-    reason: The interface uses component-local geometry rather than a named radius scale.
   - section: spacing
     reason: The repository does not define a named shared spacing scale.
   - section: components
@@ -46,17 +48,17 @@ On narrow screens, collapse multi-column data and character sections into one re
 
 ## Elevation & Depth
 
-Create depth through nested navy surfaces, thin borders, foreground occlusion, character art, and restrained directional light. Use hard offset shadows only for exceptional event cards. Do not use generic soft shadows to separate every panel.
+Create depth through nested navy surfaces, thin borders, foreground occlusion, character art, restrained directional light, and low-contrast ambient shadows. Use stronger offset shadows only for exceptional event cards; ordinary controls and panels use broad, shallow shadows that soften transitions without making every surface appear detached.
 
 Motion may animate transform and opacity for character ambience, reward feedback, and rare state changes. Keep repeated navigation and data inspection immediate, and disable nonessential movement when reduced motion is requested.
 
 ## Shapes
 
-Use clipped shield, crest, and angular frame geometry for rank and character equipment. Keep ordinary data containers rectangular and border-led so special silhouettes retain meaning. Circular forms belong to progress, synchronization, lenses, clocks, and energy systems.
+Use clipped shield, crest, and angular frame geometry only for rank, character equipment, and decisive battle states. Give ordinary cards, inputs, tabs, dialogs, and data containers a consistent gentle curve so study flows feel calm and approachable while special silhouettes retain meaning. Circular forms belong to progress, synchronization, lenses, clocks, and energy systems.
 
 ## Components
 
-Primary actions use a gold field with dark text and immediate press feedback. Secondary actions remain transparent with a gold or muted border. Ranking and record surfaces rely on aligned rows, restrained dividers, and strong numeric hierarchy rather than decorative cards.
+Primary actions use a gold field with dark text, a softened rectangular silhouette, and immediate press feedback. Secondary actions remain transparent with a gold or muted border. Hover and selection transitions should ease into their state instead of snapping. Ranking and record surfaces rely on aligned rows, restrained dividers, gentle grouped surfaces, and strong numeric hierarchy rather than excessive decorative cards.
 
 Character and equipment surfaces must connect every visual reward to a measurable study condition. Locked rewards show the exact academic requirement, while earned rewards show grade, name, and effect without obscuring the study outcome.
 
