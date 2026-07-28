@@ -1,98 +1,67 @@
-# vinext-starter
+# 실수들의 전쟁 — War of Masters
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+고등학생이 동일한 모의고사를 풀고 랭크, 캐릭터, 전투 부품을 성장시키는 모의고사 랭킹전 웹 프론트엔드입니다.
 
-## Prerequisites
+이 저장소는 이미지 시안이 아니라 실제 브라우저에서 실행되는 React 기반 UI입니다. 기존 HTML 사이트에 옮길 때 화면을 다시 그리기보다 이 프로젝트를 프론트엔드로 유지하고, 기존 서버와 API로 연결하는 방식을 권장합니다.
 
-- Node.js `>=22.13.0`
+## 현재 구현된 화면
 
-## Quick Start
+- 첫 방문 캐릭터 선택 및 3단계 입단 프로필
+- 로그인 방식 선택, 닉네임과 고등학교 입력
+- 입단 배치 모의고사 시험지 뷰어
+- 20문항 이동, 답안 선택, 자동 저장 표시, 제출 결과
+- 랭크 체계, 전국 랭킹, 월간 랭크전
+- 캐릭터 성장, 전투 부품, 라이벌 결투
+- 데스크톱 및 모바일 반응형 UI
+
+## 로컬 실행
+
+Node.js 22.13 이상이 필요합니다.
 
 ```bash
 npm install
 npm run dev
+```
+
+배포 전 확인:
+
+```bash
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+## 개발자가 연결할 기능
 
-## Included Shape
+현재 데이터와 로그인은 UI 시연용입니다. 다음 기능은 실제 API와 데이터베이스 연결이 필요합니다.
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+1. 카카오·Google·이메일 인증
+2. 사용자, 닉네임, 학교 프로필 저장
+3. 시험 및 문항 관리 API
+4. 답안 임시 저장, 제출, 자동 채점
+5. LP 계산과 전국·학교별 랭킹
+6. 캐릭터 부품 획득 및 성장 기록
+7. 친구 검색과 비동기 결투
+8. 관리자용 시험 등록 화면
 
-## Workspace Auth Headers
+주요 화면과 임시 상태는 `app/page.tsx`, 전체 디자인 스타일은 `app/globals.css`에 있습니다. 실제 개발 단계에서는 온보딩, 시험, 랭킹, 캐릭터를 별도 페이지와 컴포넌트로 분리하는 것을 권장합니다.
 
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
+## 디자인 기준
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+색상, 타이포그래피, 간격, 캐릭터 표현과 UI 원칙은 `DESIGN.md`에 정리되어 있습니다. 새 기능을 만들 때 해당 문서를 기준으로 기존 디자인 언어를 유지해 주세요.
 
-Treat the full name as optional and fall back to email when it is absent:
+## HTML 기반 기존 사이트와 연결할 때
 
-```tsx
-import { headers } from "next/headers";
+이 UI는 HTML, CSS, JavaScript로 브라우저에 출력되지만 소스는 React로 관리됩니다. 정적인 HTML 한 파일로 변환하면 답안 저장, 로그인, 랭킹처럼 상태가 필요한 기능을 다시 작성해야 합니다.
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+권장 구조:
 
-  const displayName = fullName ?? email;
-  // ...
-}
+```text
+현재 React UI ── REST/GraphQL API ── 기존 백엔드·데이터베이스
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+기존 서버가 PHP, Java, Python 또는 Node.js여도 API 방식으로 연결할 수 있습니다.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+## 콘텐츠 사용 주의
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+- `public/placement-sample.pdf`는 제공받은 배치고사 UI 예시입니다. 실제 공개 서비스 배포 전 사용·배포 권한을 반드시 확인하세요.
+- 캐릭터 이미지도 상업적 이용 및 2차 사용 권한을 확인한 뒤 공개 저장소나 상용 서비스에 사용하세요.
+- API 키, 비밀번호, 실제 사용자 데이터는 저장소에 커밋하지 마세요. `.env` 파일은 Git에서 제외되어 있습니다.
