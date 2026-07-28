@@ -17,10 +17,17 @@ const subjects = [
   { name: "탐구", value: 82, delta: "+5", tone: "violet" },
 ];
 
+const heroes = [
+  { id: "zero", name: "제로", title: "해답 설계자", role: "수학 · 정밀 타격", image: "/zero.png", score: "94", quote: "가능성은 많아도, 답은 하나야.", skill: "단 하나의 해답", icon: "∑", color: "#d9ad59" },
+  { id: "yoonseul", name: "윤슬", title: "행간을 읽는 자", role: "국어 · 분석 지원", image: "/yoonseul.png", score: "86", quote: "답은 문장 안에 있었어.", skill: "작가의 시선", icon: "文", color: "#538fd4" },
+  { id: "loop", name: "루프", title: "시간을 앞서는 목소리", role: "영어 · 속도 돌파", image: "/loop.png", score: "91", quote: "해석하지 마. 흐름을 타.", skill: "문맥 질주", icon: "A", color: "#52c9c2" },
+];
+
 export default function Home() {
   const [tab, setTab] = useState("전장");
   const [queued, setQueued] = useState(false);
   const [duel, setDuel] = useState(false);
+  const [activeHero, setActiveHero] = useState(0);
 
   const selectTab = (item: string) => {
     setTab(item);
@@ -66,6 +73,15 @@ export default function Home() {
         <div className="mission"><Target/><span><small>오늘의 전투 훈련</small><b>수학 준킬러 20문항</b></span><i><b style={{width:"70%"}}/></i><strong>14/20</strong></div>
         <div className="mission"><Gem/><span><small>부품 발견 확률</small><b>희귀 모듈 게이지</b></span><i><b style={{width:"84%"}}/></i><strong>84%</strong></div>
         <button aria-label="오늘의 미션 전체 보기"><ChevronRight/></button>
+      </section>
+
+      <section className="hero-select" aria-labelledby="hero-select-title">
+        <div className="hero-select-head"><div><p className="eyebrow">CHOOSE YOUR MIND</p><h2 id="hero-select-title">당신의 사고방식을 선택하세요.</h2></div><p>캐릭터는 성적에 유불리를 주지 않습니다.<br/>당신의 공부 방식과 성장 기록을 표현합니다.</p></div>
+        <div className="hero-showcase" style={{"--hero-color":heroes[activeHero].color} as CSSProperties}>
+          <div className="hero-visual"><div className="hero-grid"/><img src={heroes[activeHero].image} alt={`${heroes[activeHero].name}, ${heroes[activeHero].title}`}/><span className="hero-index">0{activeHero + 1}</span><div className="hero-scan">SYNCING · {heroes[activeHero].score}%</div></div>
+          <div className="hero-info"><span className="role">{heroes[activeHero].role}</span><h3>{heroes[activeHero].name}</h3><h4>{heroes[activeHero].title}</h4><blockquote>“{heroes[activeHero].quote}”</blockquote><div className="signature"><i>{heroes[activeHero].icon}</i><span><small>SIGNATURE SKILL</small><b>{heroes[activeHero].skill}</b></span><strong>{heroes[activeHero].score}</strong></div><button onClick={() => setQueued(true)}><Swords/>이 영웅으로 입단하기<ChevronRight/></button></div>
+          <div className="hero-tabs" role="tablist" aria-label="영웅 선택">{heroes.map((hero,index)=><button role="tab" aria-selected={activeHero===index} className={activeHero===index?"selected":""} onClick={()=>setActiveHero(index)} key={hero.id}><img src={hero.image} alt=""/><span><small>0{index+1}</small><b>{hero.name}</b><em>{hero.role.split(" · ")[0]}</em></span></button>)}</div>
+        </div>
       </section>
 
       <section className="rank-system" id="rank-system">
