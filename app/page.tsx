@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { Award, BarChart3, BookOpen, Check, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Gem, LockKeyhole, LogIn, Mail, Orbit as OrbitIcon, Rocket, School, Shield, Sparkles, Swords, Target, Trophy, UserRound, X, Zap } from "lucide-react";
+import { Award, BarChart3, BookOpen, Check, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Gem, LockKeyhole, Mail, Orbit as OrbitIcon, Play, Rocket, School, Shield, Sparkles, Swords, Target, Trophy, UserRound, Volume2, VolumeX, X, Zap } from "lucide-react";
 
 const players = [
   { rank: 1, name: "한계돌파", school: "서울 · 고3", score: 1980, win: "92%", crest: "Ⅰ" },
@@ -38,6 +38,7 @@ export default function Home() {
   const [question, setQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [introMuted, setIntroMuted] = useState(true);
 
   const openPlacement = () => {
     if (!profileReady) {
@@ -187,22 +188,19 @@ export default function Home() {
       <section className="cta"><span>당신의 실력은, 몇 등입니까?</span><h2>전장은 이미 열렸다.</h2><button onClick={openPlacement}>지금 입단하기<i>→</i></button></section>
       <footer className="footer"><div className="brand"><span className="brand-mark">戰</span><span><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></span></div><p>점수가 아닌 성장을 경쟁하는 모의고사 랭킹전</p><span>© 2026 WAR OF MASTERS</span></footer>
 
-      {onboarding && <div className="onboarding-shell" role="dialog" aria-modal="true" aria-label="입단 프로필 설정">
-        <div className="onboarding-hero" style={{"--hero-color": heroes[activeHero].color} as CSSProperties}>
-          <div className="onboarding-glow"/><div className="onboarding-grid"/>
-          <div className="onboarding-brand"><span>戰</span><b>WAR OF MASTERS</b></div>
-          <img src={heroes[activeHero].image} alt={`${heroes[activeHero].name} 캐릭터`}/>
-          <div className="onboarding-caption"><small>SELECTED MIND · 0{activeHero + 1}</small><h2>{heroes[activeHero].name}</h2><p>{heroes[activeHero].title}</p></div>
-          <div className="mini-hero-picker">{heroes.map((hero,index)=><button key={hero.id} className={index===activeHero?"active":""} onClick={()=>setActiveHero(index)} aria-label={`${hero.name} 선택`}><img src={hero.image} alt=""/><span>{hero.name}</span></button>)}</div>
-        </div>
-        <div className="onboarding-form">
-          <button className="onboarding-close" onClick={()=>setOnboarding(false)} aria-label="닫기"><X/></button>
-          <div className="step-dots" aria-label={`3단계 중 ${onboardStep}단계`}><span className={onboardStep>=1?"on":""}/><span className={onboardStep>=2?"on":""}/><span className={onboardStep>=3?"on":""}/><b>0{onboardStep} / 03</b></div>
-          {onboardStep===1 && <div className="onboard-panel"><p className="eyebrow">WELCOME, CHALLENGER</p><h1>전장에 들어갈<br/>방법을 선택하세요.</h1><p className="onboard-copy">계정은 전적과 획득한 부품을 안전하게 보관할 때 사용해요.</p><div className="login-options"><button className="kakao" onClick={()=>{setLoginMethod("카카오");setOnboardStep(2)}}><span>●</span><b>카카오로 계속하기</b><ChevronRight/></button><button onClick={()=>{setLoginMethod("구글");setOnboardStep(2)}}><span className="google">G</span><b>Google로 계속하기</b><ChevronRight/></button><button onClick={()=>{setLoginMethod("이메일");setOnboardStep(2)}}><Mail/><b>이메일로 계속하기</b><ChevronRight/></button></div><small className="legal">계속하면 이용약관 및 개인정보 처리방침에 동의하게 됩니다.</small></div>}
-          {onboardStep===2 && <div className="onboard-panel"><p className="eyebrow">CREATE YOUR NAME</p><h1>전장에서 불릴<br/>이름은 무엇인가요?</h1><p className="onboard-copy">실명 대신 닉네임으로 경쟁해요. 언제든 프로필에서 바꿀 수 있어요.</p><label className="soft-field"><UserRound/><span><small>닉네임</small><input autoFocus maxLength={10} value={nickname} onChange={e=>setNickname(e.target.value)} placeholder="2–10자로 입력"/></span><b>{nickname.length}/10</b></label><div className="name-preview"><span>RANK CARD PREVIEW</span><div><i>{heroes[activeHero].icon}</i><p><b>{nickname || "당신의 닉네임"}</b><small>UNRANKED · NEW CHALLENGER</small></p></div></div><div className="onboard-nav"><button onClick={()=>setOnboardStep(1)}><ChevronLeft/>이전</button><button className="next" disabled={nickname.trim().length<2} onClick={()=>setOnboardStep(3)}>다음<ChevronRight/></button></div></div>}
-          {onboardStep===3 && <div className="onboard-panel"><p className="eyebrow">CHOOSE YOUR SCHOOL</p><h1>함께 싸울 학교를<br/>선택해주세요.</h1><p className="onboard-copy">학교 랭킹과 교내 라이벌 매칭에 사용돼요. 학년은 점수 보정에 영향을 주지 않아요.</p><label className="soft-field"><School/><span><small>고등학교</small><select value={school} onChange={e=>setSchool(e.target.value)}><option value="">학교를 선택하세요</option><option>서울고등학교</option><option>경기고등학교</option><option>휘문고등학교</option><option>대원외국어고등학교</option><option>한영고등학교</option><option>기타 고등학교</option></select></span><ChevronRight/></label><div className="school-note"><Sparkles/><p><b>{school || "학교를 선택하면"}</b><span>{school ? "교내 랭킹과 학교 대항전이 열립니다." : "나와 같은 학교의 라이벌을 만날 수 있어요."}</span></p></div><div className="onboard-nav"><button onClick={()=>setOnboardStep(2)}><ChevronLeft/>이전</button><button className="next" disabled={!school} onClick={finishProfile}>입단 완료<ChevronRight/></button></div></div>}
-          <div className="onboard-foot"><Shield/><span>시험 기록은 닉네임으로만 공개됩니다.</span></div>
-        </div>
+      {onboarding && <div className="cinematic-gate" role="dialog" aria-modal="true" aria-label="실수들의 전쟁 입단">
+        <video className="gate-video" autoPlay loop playsInline muted={introMuted} poster="/login-arena.png"><source src="/war-intro.mp4" type="video/mp4"/></video>
+        <div className="gate-blur"/><div className="gate-vignette"/>
+        <header className="gate-nav"><a className="gate-brand" href="#top"><span>戰</span><p><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></p></a><nav><a href="#rank-system">랭크 시스템</a><a href="#forge">전투체</a><a href="#ranking">명예의 전당</a></nav><button className="liquid-glass sound-toggle" onClick={()=>setIntroMuted(!introMuted)} aria-label={introMuted?"영상 소리 켜기":"영상 소리 끄기"}>{introMuted?<VolumeX/>:<Volume2/>}</button></header>
+        <section className="gate-story"><div className="gate-meta"><span>2026 SEASON 08</span><i/><span>전국 모의고사 랭킹전</span><i/><span>15,842 CHALLENGERS</span></div><h1>실수는 끝이 아니다.<br/><em>전설의 시작이다.</em></h1><p>같은 시험지, 같은 시간. 끝까지 풀어낸 자만이<br/>자신의 이름을 전장에 새길 수 있다.</p><div><button className="gate-play" onClick={()=>document.querySelector<HTMLVideoElement>('.gate-video')?.play()}><Play/>시네마틱 재생</button><span>NEXT BATTLE · 08.01 21:00</span></div></section>
+        <aside className="gate-login">
+          <div className="gate-art"><img src="/login-arena.png" alt="실수들의 전쟁 캐릭터 전장"/><div><span>PLACEMENT MATCH</span><b>당신의 첫 티어를 증명하세요.</b></div></div>
+          <div className="gate-form"><button className="gate-close" onClick={()=>setOnboarding(false)} aria-label="입단 화면 닫기"><X/></button><div className="gate-progress"><span className={onboardStep>=1?"on":""}/><span className={onboardStep>=2?"on":""}/><span className={onboardStep>=3?"on":""}/><b>0{onboardStep} / 03</b></div>
+          {onboardStep===1&&<div className="gate-panel"><small>ENTER THE ARENA</small><h2>전장에 입장하기</h2><p>전적과 캐릭터를 저장할 계정을 선택하세요.</p><div className="gate-login-options"><button className="kakao" onClick={()=>{setLoginMethod("카카오");setOnboardStep(2)}}><i>●</i><b>카카오로 계속하기</b><ChevronRight/></button><button onClick={()=>{setLoginMethod("구글");setOnboardStep(2)}}><i className="google">G</i><b>Google로 계속하기</b><ChevronRight/></button><button onClick={()=>{setLoginMethod("이메일");setOnboardStep(2)}}><Mail/><b>이메일로 계속하기</b><ChevronRight/></button></div><em>계속하면 이용약관 및 개인정보 처리방침에 동의합니다.</em></div>}
+          {onboardStep===2&&<div className="gate-panel"><small>CREATE YOUR LEGACY</small><h2>전장에서 불릴 이름</h2><p>실명 대신 모두에게 공개될 닉네임을 정해주세요.</p><label className="gate-field"><UserRound/><span><small>닉네임</small><input autoFocus maxLength={10} value={nickname} onChange={e=>setNickname(e.target.value)} placeholder="2–10자로 입력"/></span><b>{nickname.length}/10</b></label><div className="gate-hero-choice"><span>함께할 영웅</span><div>{heroes.map((hero,index)=><button key={hero.id} className={index===activeHero?"active":""} onClick={()=>setActiveHero(index)}><img src={hero.image} alt=""/><b>{hero.name}</b></button>)}</div></div><div className="gate-actions"><button onClick={()=>setOnboardStep(1)}><ChevronLeft/>이전</button><button disabled={nickname.trim().length<2} onClick={()=>setOnboardStep(3)}>다음<ChevronRight/></button></div></div>}
+          {onboardStep===3&&<div className="gate-panel"><small>CHOOSE YOUR BANNER</small><h2>소속 학교 선택</h2><p>교내 랭킹과 학교 대항전에 표시될 학교입니다.</p><label className="gate-field"><School/><span><small>고등학교</small><select value={school} onChange={e=>setSchool(e.target.value)}><option value="">학교를 선택하세요</option><option>서울고등학교</option><option>경기고등학교</option><option>휘문고등학교</option><option>대원외국어고등학교</option><option>한영고등학교</option><option>기타 고등학교</option></select></span><ChevronRight/></label><div className="gate-school"><Trophy/><span><b>{school||"학교 랭킹 잠김"}</b><small>{school?"교내 라이벌 검색이 활성화됩니다.":"학교를 선택하면 새로운 경쟁이 시작됩니다."}</small></span></div><div className="gate-actions"><button onClick={()=>setOnboardStep(2)}><ChevronLeft/>이전</button><button disabled={!school} onClick={finishProfile}>배치고사 입장<Swords/></button></div></div>}
+          <footer><Shield/><span>성적과 개인정보는 닉네임 뒤에 안전하게 보호됩니다.</span></footer></div>
+        </aside>
       </div>}
 
       {examOpen && <div className="exam-shell" role="dialog" aria-modal="true" aria-label="입단 배치 모의고사">
