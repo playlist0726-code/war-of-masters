@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Award, BarChart3, BookOpen, Check, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Gem, LockKeyhole, Mail, Orbit as OrbitIcon, Play, Rocket, School, Shield, Sparkles, Swords, Target, Trophy, UserRound, Volume2, VolumeX, X, Zap } from "lucide-react";
+import { Award, BarChart3, Bell, BookOpen, Check, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Gem, LockKeyhole, Mail, MailOpen, Orbit as OrbitIcon, Play, Rocket, School, Shield, Sparkles, Swords, Target, Trophy, UserPlus, UserRound, Volume2, VolumeX, X, Zap } from "lucide-react";
 
 const players = [
   { rank: 1, name: "한계돌파", school: "서울 · 고3", score: 1980, win: "92%", crest: "Ⅰ" },
@@ -47,6 +47,9 @@ export default function Home() {
   const [videoBlocked, setVideoBlocked] = useState(false);
   const [gold, setGold] = useState(2840);
   const [promotionBooked, setPromotionBooked] = useState(false);
+  const [duelSent, setDuelSent] = useState(false);
+  const [friendAdded, setFriendAdded] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
   const introVideoRef = useRef<HTMLVideoElement>(null);
 
   const playIntro = () => {
@@ -112,7 +115,7 @@ export default function Home() {
             <button key={item} className={tab === item ? "active" : ""} onClick={() => selectTab(item)}>{item}</button>
           ))}
         </nav>
-        <div className="profile-cluster"><button className="gold-wallet" aria-label={`보유 골드 ${gold.toLocaleString()}`}><Gem/><span><small>MY GOLD</small><b>{gold.toLocaleString()} G</b></span></button><button className="profile" onClick={() => setOnboarding(true)}><span className="level">{profileReady ? "01" : "?"}</span><span><b>{profileReady ? nickname : "입단 준비"}</b><small>{profileReady ? `${school} · ROOKIE` : "프로필 설정"}</small></span></button></div>
+        <div className="profile-cluster"><button className="gold-wallet" aria-label={`보유 골드 ${gold.toLocaleString()}`}><Gem/><span><small>MY GOLD</small><b>{gold.toLocaleString()} G</b></span></button><button className="inbox-button" onClick={()=>setInboxOpen(!inboxOpen)} aria-label="우편함 열기"><Bell/><i>{duelSent?"2":"3"}</i></button><button className="profile" onClick={() => setOnboarding(true)}><span className="level">{profileReady ? "01" : "?"}</span><span><b>{profileReady ? nickname : "입단 준비"}</b><small>{profileReady ? `${school} · ROOKIE` : "프로필 설정"}</small></span></button></div>
       </header>
 
       <section className="hero" id="top">
@@ -181,7 +184,7 @@ export default function Home() {
       <section className="duel-zone">
         <div><p className="eyebrow">RIVAL DUEL</p><h2>친구의 기록에 결투를 신청하세요.</h2><p>같은 과목·같은 난이도의 20문항으로 맞붙습니다. 실시간 접속이 아니어도 상대의 기록과 대결할 수 있어요.</p></div>
         <div className="versus"><span><i>27</i><b>막판역전</b><small>PLATINUM Ⅱ</small></span><strong>VS</strong><span><i>31</i><b>불꽃연필</b><small>PLATINUM Ⅰ</small></span></div>
-        <button onClick={() => setDuel(true)}>{duel ? <Check/> : <Swords/>}{duel ? "결투 신청 완료" : "결투 신청하기"}</button>
+        <button onClick={() => setDuel(true)}>{duelSent ? <Check/> : <Swords/>}{duelSent ? "결투 현황 보기" : "결투 신청하기"}</button>
       </section>
 
       <section className="collection">
@@ -225,6 +228,14 @@ export default function Home() {
 
       <section className="cta"><span>당신의 실력은, 몇 등입니까?</span><h2>전장은 이미 열렸다.</h2><button onClick={openPlacement}>지금 입단하기<i>→</i></button></section>
       <footer className="footer"><div className="brand"><span className="brand-mark">戰</span><span><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></span></div><p>점수가 아닌 성장을 경쟁하는 모의고사 랭킹전</p><span>© 2026 WAR OF MASTERS</span></footer>
+
+      {inboxOpen&&<aside className="inbox-drawer" aria-label="우편함"><header><div><MailOpen/><span><small>MESSENGER</small><b>전장 우편함</b></span></div><button onClick={()=>setInboxOpen(false)} aria-label="우편함 닫기"><X/></button></header><div className="inbox-tabs"><button className="active">전체 <b>{duelSent?2:3}</b></button><button>결투</button><button>친구</button></div><div className="mail-list">{!duelSent&&<button className="unread" onClick={()=>{setInboxOpen(false);setDuel(true)}}><i><Swords/></i><span><b>불꽃연필님의 결투 신청</b><p>같은 수학 모의고사로 승부를 요청했습니다.</p><small>마감까지 21시간 34분</small></span><em>방금</em></button>}<button className="unread"><i><Trophy/></i><span><b>다이아 승급전 예약 가능</b><p>필요 조건의 74%를 달성했습니다.</p><small>600G로 도전권 예약</small></span><em>12분</em></button><button><i><UserPlus/></i><span><b>한계돌파님의 친구 요청</b><p>서울 · 고3 · 마스터 티어</p><small>함께 랭크전을 준비해보세요.</small></span><em>어제</em></button></div><footer><Shield/>중요한 결투와 시험 소식은 이곳에 보관됩니다.</footer></aside>}
+
+      {duel&&<div className="duel-modal" role="dialog" aria-modal="true" aria-label="라이벌 결투"><div className="duel-backdrop" onClick={()=>setDuel(false)}/><section className="duel-match"><header><span><i className="pulse"/>{duelSent?"CHALLENGE SENT":"RIVAL LINKING"}</span><div><b>{duelSent?"상대의 응답을 기다리는 중":"결투 상대 확인 중"}</b><small>{duelSent?"내일 21:00까지 같은 시험지를 완료하면 결과가 공개됩니다.":"전적과 티어를 동기화하고 있습니다."}</small></div><button onClick={()=>setDuel(false)} aria-label="결투 화면 닫기"><X/></button></header><div className="duel-split">
+        <article className="duelist me"><div className="duelist-art"><img src="/zero.png" alt="제로"/><span>YOU</span></div><div className="duelist-rank"><i className="tier-emblem" style={{"--tier-x":"100%","--tier-y":"0%"} as CSSProperties}/><p><small>PLATINUM Ⅱ</small><b>{nickname||"막판역전"}</b><span>{school||"휘문고등학교"} · 고3</span></p></div><dl><div><dt>전국 순위</dt><dd>#1,284</dd></div><div><dt>최근 평균</dt><dd>386.4</dd></div><div><dt>수학 승률</dt><dd>78.6%</dd></div></dl></article>
+        <div className="duel-versus"><span>VS</span><i/><b>ASYNC DUEL</b><small>24H</small></div>
+        <article className="duelist rival"><div className="duelist-art"><img src="/yoonseul.png" alt="윤슬"/><span>RIVAL</span></div><div className="duelist-rank"><i className="tier-emblem" style={{"--tier-x":"50%","--tier-y":"100%"} as CSSProperties}/><p><small>MASTER Ⅳ</small><b>불꽃연필</b><span>대전고등학교 · 고3</span></p></div><dl><div><dt>전국 순위</dt><dd>#482</dd></div><div><dt>최근 평균</dt><dd>391.8</dd></div><div><dt>수학 승률</dt><dd>81.2%</dd></div></dl><button className="friend-button" onClick={()=>setFriendAdded(true)}>{friendAdded?<><Check/>친구 요청 보냄</>:<><UserPlus/>친구 추가</>}</button></article>
+        </div><div className="duel-contract"><div><Clock3/><p><b>하루 안에 각자 응시</b><span>동시에 접속할 필요 없이 동일한 20문항을 제한 시간 45분 안에 풀어요.</span></p></div><div><Shield/><p><b>공정한 결과 공개</b><span>두 사람이 모두 제출하거나 24시간이 지나면 점수·정확도·풀이 시간이 공개돼요.</span></p></div></div><footer><div><span>결투 시험</span><b>수학 공통 · 준킬러 20문항</b><small>응시 기한 · 내일 21:00</small></div><button className="duel-cancel" onClick={()=>setDuel(false)}>나중에</button><button className="duel-accept" onClick={()=>{setDuelSent(true);setDuel(false);setInboxOpen(true)}}>{duelSent?<><BookOpen/>시험지 확인</>:<><Swords/>결투 요청 보내기</>}</button></footer></section></div>}
 
       {onboarding && <div className="cinematic-gate" role="dialog" aria-modal="true" aria-label="실수들의 전쟁 입단">
         <video ref={introVideoRef} className="gate-video" autoPlay loop playsInline muted preload="auto" poster="/login-arena.png" onPlaying={()=>setVideoBlocked(false)} onError={()=>setVideoBlocked(true)}><source src="/war-intro.mp4" type="video/mp4"/></video>
