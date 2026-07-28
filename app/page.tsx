@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { Award, BarChart3, BookOpen, Check, ChevronRight, Flame, Gauge, Gem, LockKeyhole, Orbit as OrbitIcon, Rocket, Shield, Sparkles, Swords, Target, Trophy, Zap } from "lucide-react";
+import { Award, BarChart3, BookOpen, Check, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Gem, LockKeyhole, LogIn, Mail, Orbit as OrbitIcon, Rocket, School, Shield, Sparkles, Swords, Target, Trophy, UserRound, X, Zap } from "lucide-react";
 
 const players = [
   { rank: 1, name: "한계돌파", school: "서울 · 고3", score: 1980, win: "92%", crest: "Ⅰ" },
@@ -28,6 +28,32 @@ export default function Home() {
   const [queued, setQueued] = useState(false);
   const [duel, setDuel] = useState(false);
   const [activeHero, setActiveHero] = useState(0);
+  const [onboarding, setOnboarding] = useState(true);
+  const [onboardStep, setOnboardStep] = useState(1);
+  const [loginMethod, setLoginMethod] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [school, setSchool] = useState("");
+  const [profileReady, setProfileReady] = useState(false);
+  const [examOpen, setExamOpen] = useState(false);
+  const [question, setQuestion] = useState(1);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const openPlacement = () => {
+    if (!profileReady) {
+      setOnboarding(true);
+      setOnboardStep(loginMethod ? 2 : 1);
+      return;
+    }
+    setExamOpen(true);
+  };
+
+  const finishProfile = () => {
+    if (!nickname.trim() || !school) return;
+    setProfileReady(true);
+    setOnboarding(false);
+    setExamOpen(true);
+  };
 
   const selectTab = (item: string) => {
     setTab(item);
@@ -46,7 +72,7 @@ export default function Home() {
             <button key={item} className={tab === item ? "active" : ""} onClick={() => selectTab(item)}>{item}</button>
           ))}
         </nav>
-        <div className="profile"><span className="level">27</span><span><b>막판역전</b><small>PLATINUM Ⅱ</small></span></div>
+        <button className="profile" onClick={() => setOnboarding(true)}><span className="level">{profileReady ? "01" : "?"}</span><span><b>{profileReady ? nickname : "입단 준비"}</b><small>{profileReady ? `${school} · ROOKIE` : "프로필 설정"}</small></span></button>
       </header>
 
       <section className="hero" id="top">
@@ -56,7 +82,7 @@ export default function Home() {
           <h1>증명하라.<br /><em>끝까지 풀어낸 자</em>가<br />전설이 된다.</h1>
           <p className="hero-copy">같은 시험지, 같은 시간, 단 한 번의 승부.<br />전국의 실수들과 실력으로 맞붙어라.</p>
           <div className="hero-actions">
-            <button className="primary" onClick={() => setQueued(true)}>{queued ? <Check size={16}/> : <Swords size={16}/>} {queued ? "참가 신청 완료" : "입단 배치고사 시작"}<ChevronRight size={16}/></button>
+            <button className="primary" onClick={openPlacement}><Swords size={16}/> 입단 배치고사 시작<ChevronRight size={16}/></button>
             <a className="ghost" href="#how">진행 방식 보기</a>
           </div>
           <div className="season-clock"><span>NEXT RANKED BATTLE</span><strong>08.01</strong><i>21:00</i></div>
@@ -79,7 +105,7 @@ export default function Home() {
         <div className="hero-select-head"><div><p className="eyebrow">CHOOSE YOUR MIND</p><h2 id="hero-select-title">당신의 사고방식을 선택하세요.</h2></div><p>캐릭터는 성적에 유불리를 주지 않습니다.<br/>당신의 공부 방식과 성장 기록을 표현합니다.</p></div>
         <div className="hero-showcase" style={{"--hero-color":heroes[activeHero].color} as CSSProperties}>
           <div className="hero-visual"><div className="hero-grid"/><img src={heroes[activeHero].image} alt={`${heroes[activeHero].name}, ${heroes[activeHero].title}`}/><span className="hero-index">0{activeHero + 1}</span><div className="hero-scan">SYNCING · {heroes[activeHero].score}%</div></div>
-          <div className="hero-info"><span className="role">{heroes[activeHero].role}</span><h3>{heroes[activeHero].name}</h3><h4>{heroes[activeHero].title}</h4><blockquote>“{heroes[activeHero].quote}”</blockquote><div className="signature"><i>{heroes[activeHero].icon}</i><span><small>SIGNATURE SKILL</small><b>{heroes[activeHero].skill}</b></span><strong>{heroes[activeHero].score}</strong></div><button onClick={() => setQueued(true)}><Swords/>이 영웅으로 입단하기<ChevronRight/></button></div>
+          <div className="hero-info"><span className="role">{heroes[activeHero].role}</span><h3>{heroes[activeHero].name}</h3><h4>{heroes[activeHero].title}</h4><blockquote>“{heroes[activeHero].quote}”</blockquote><div className="signature"><i>{heroes[activeHero].icon}</i><span><small>SIGNATURE SKILL</small><b>{heroes[activeHero].skill}</b></span><strong>{heroes[activeHero].score}</strong></div><button onClick={() => setOnboarding(true)}><Swords/>이 영웅으로 입단하기<ChevronRight/></button></div>
           <div className="hero-tabs" role="tablist" aria-label="영웅 선택">{heroes.map((hero,index)=><button role="tab" aria-selected={activeHero===index} className={activeHero===index?"selected":""} onClick={()=>setActiveHero(index)} key={hero.id}><img src={hero.image} alt=""/><span><small>0{index+1}</small><b>{hero.name}</b><em>{hero.role.split(" · ")[0]}</em></span></button>)}</div>
         </div>
       </section>
@@ -158,8 +184,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="cta"><span>당신의 실력은, 몇 등입니까?</span><h2>전장은 이미 열렸다.</h2><button onClick={() => setQueued(true)}>{queued ? "입단 준비 완료" : "지금 입단하기"}<i>→</i></button></section>
+      <section className="cta"><span>당신의 실력은, 몇 등입니까?</span><h2>전장은 이미 열렸다.</h2><button onClick={openPlacement}>지금 입단하기<i>→</i></button></section>
       <footer className="footer"><div className="brand"><span className="brand-mark">戰</span><span><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></span></div><p>점수가 아닌 성장을 경쟁하는 모의고사 랭킹전</p><span>© 2026 WAR OF MASTERS</span></footer>
+
+      {onboarding && <div className="onboarding-shell" role="dialog" aria-modal="true" aria-label="입단 프로필 설정">
+        <div className="onboarding-hero" style={{"--hero-color": heroes[activeHero].color} as CSSProperties}>
+          <div className="onboarding-glow"/><div className="onboarding-grid"/>
+          <div className="onboarding-brand"><span>戰</span><b>WAR OF MASTERS</b></div>
+          <img src={heroes[activeHero].image} alt={`${heroes[activeHero].name} 캐릭터`}/>
+          <div className="onboarding-caption"><small>SELECTED MIND · 0{activeHero + 1}</small><h2>{heroes[activeHero].name}</h2><p>{heroes[activeHero].title}</p></div>
+          <div className="mini-hero-picker">{heroes.map((hero,index)=><button key={hero.id} className={index===activeHero?"active":""} onClick={()=>setActiveHero(index)} aria-label={`${hero.name} 선택`}><img src={hero.image} alt=""/><span>{hero.name}</span></button>)}</div>
+        </div>
+        <div className="onboarding-form">
+          <button className="onboarding-close" onClick={()=>setOnboarding(false)} aria-label="닫기"><X/></button>
+          <div className="step-dots" aria-label={`3단계 중 ${onboardStep}단계`}><span className={onboardStep>=1?"on":""}/><span className={onboardStep>=2?"on":""}/><span className={onboardStep>=3?"on":""}/><b>0{onboardStep} / 03</b></div>
+          {onboardStep===1 && <div className="onboard-panel"><p className="eyebrow">WELCOME, CHALLENGER</p><h1>전장에 들어갈<br/>방법을 선택하세요.</h1><p className="onboard-copy">계정은 전적과 획득한 부품을 안전하게 보관할 때 사용해요.</p><div className="login-options"><button className="kakao" onClick={()=>{setLoginMethod("카카오");setOnboardStep(2)}}><span>●</span><b>카카오로 계속하기</b><ChevronRight/></button><button onClick={()=>{setLoginMethod("구글");setOnboardStep(2)}}><span className="google">G</span><b>Google로 계속하기</b><ChevronRight/></button><button onClick={()=>{setLoginMethod("이메일");setOnboardStep(2)}}><Mail/><b>이메일로 계속하기</b><ChevronRight/></button></div><small className="legal">계속하면 이용약관 및 개인정보 처리방침에 동의하게 됩니다.</small></div>}
+          {onboardStep===2 && <div className="onboard-panel"><p className="eyebrow">CREATE YOUR NAME</p><h1>전장에서 불릴<br/>이름은 무엇인가요?</h1><p className="onboard-copy">실명 대신 닉네임으로 경쟁해요. 언제든 프로필에서 바꿀 수 있어요.</p><label className="soft-field"><UserRound/><span><small>닉네임</small><input autoFocus maxLength={10} value={nickname} onChange={e=>setNickname(e.target.value)} placeholder="2–10자로 입력"/></span><b>{nickname.length}/10</b></label><div className="name-preview"><span>RANK CARD PREVIEW</span><div><i>{heroes[activeHero].icon}</i><p><b>{nickname || "당신의 닉네임"}</b><small>UNRANKED · NEW CHALLENGER</small></p></div></div><div className="onboard-nav"><button onClick={()=>setOnboardStep(1)}><ChevronLeft/>이전</button><button className="next" disabled={nickname.trim().length<2} onClick={()=>setOnboardStep(3)}>다음<ChevronRight/></button></div></div>}
+          {onboardStep===3 && <div className="onboard-panel"><p className="eyebrow">CHOOSE YOUR SCHOOL</p><h1>함께 싸울 학교를<br/>선택해주세요.</h1><p className="onboard-copy">학교 랭킹과 교내 라이벌 매칭에 사용돼요. 학년은 점수 보정에 영향을 주지 않아요.</p><label className="soft-field"><School/><span><small>고등학교</small><select value={school} onChange={e=>setSchool(e.target.value)}><option value="">학교를 선택하세요</option><option>서울고등학교</option><option>경기고등학교</option><option>휘문고등학교</option><option>대원외국어고등학교</option><option>한영고등학교</option><option>기타 고등학교</option></select></span><ChevronRight/></label><div className="school-note"><Sparkles/><p><b>{school || "학교를 선택하면"}</b><span>{school ? "교내 랭킹과 학교 대항전이 열립니다." : "나와 같은 학교의 라이벌을 만날 수 있어요."}</span></p></div><div className="onboard-nav"><button onClick={()=>setOnboardStep(2)}><ChevronLeft/>이전</button><button className="next" disabled={!school} onClick={finishProfile}>입단 완료<ChevronRight/></button></div></div>}
+          <div className="onboard-foot"><Shield/><span>시험 기록은 닉네임으로만 공개됩니다.</span></div>
+        </div>
+      </div>}
+
+      {examOpen && <div className="exam-shell" role="dialog" aria-modal="true" aria-label="입단 배치 모의고사">
+        <header className="exam-top"><div><button onClick={()=>setExamOpen(false)} aria-label="시험 나가기"><X/></button><span><small>PLACEMENT MATCH</small><b>입단 배치 모의고사 · 수학</b></span></div><div className="exam-timer"><Clock3/><span><small>남은 시간</small><b>99:42</b></span></div><button className="submit-exam" onClick={()=>setSubmitted(true)}>답안 제출</button></header>
+        {!submitted ? <div className="exam-body">
+          <aside className="exam-map"><div><small>응시자</small><b>{nickname}</b><span>{school}</span></div><p>문항 선택 <b>{Object.keys(answers).length}/20</b></p><div className="question-grid">{Array.from({length:20},(_,i)=>i+1).map(n=><button key={n} className={`${question===n?"current":""} ${answers[n]?"answered":""}`} onClick={()=>setQuestion(n)}>{n}</button>)}</div><div className="exam-legend"><span><i className="now"/>현재 문항</span><span><i className="done"/>답안 선택</span></div><div className="autosave"><Check/><span><b>자동 저장됨</b><small>방금 전</small></span></div></aside>
+          <section className="paper-view"><div className="paper-head"><span><b>{question}</b><small>공통 · 4점</small></span><p>2027학년도 6월 평가원 대비 N제</p><button onClick={()=>window.open('/placement-sample.pdf','_blank')}>전체 시험지 보기</button></div><iframe title="배치 모의고사 시험지" src={`/placement-sample.pdf#page=${Math.min(3 + Math.floor((question-1)/2),12)}&view=FitH&toolbar=0`}/></section>
+          <aside className="answer-panel"><p className="eyebrow">SELECT ANSWER</p><h2>{question}번 답 선택</h2><span>선택한 답은 자동으로 저장돼요.</span><div className="answer-list">{[1,2,3,4,5].map(n=><button key={n} className={answers[question]===n?"selected":""} onClick={()=>setAnswers({...answers,[question]:n})}><i>{n}</i><b>{answers[question]===n?"선택한 답":"정답 " + n}</b>{answers[question]===n&&<Check/>}</button>)}</div><div className="question-nav"><button disabled={question===1} onClick={()=>setQuestion(question-1)}><ChevronLeft/>이전</button><button disabled={question===20} onClick={()=>setQuestion(question+1)}>다음<ChevronRight/></button></div><div className="exam-tip"><Sparkles/><p><b>제로의 전투 팁</b><span>막힌 문항은 넘기고, 남은 시간에 다시 돌아오세요.</span></p></div></aside>
+        </div> : <div className="exam-result"><div className="result-sigil"><span>{Object.keys(answers).length}</span><small>/ 20 ANSWERED</small></div><p className="eyebrow">PLACEMENT COMPLETE</p><h1>첫 전투 기록이<br/>안전하게 저장됐습니다.</h1><p>정답 공개 후 정확도·풀이 속도·고난도 문항을 분석해<br/>첫 티어와 전투 부품을 지급할게요.</p><div><button onClick={()=>{setSubmitted(false);setExamOpen(false);setQueued(true)}}>전장으로 돌아가기</button><button onClick={()=>setSubmitted(false)}>답안 다시 보기</button></div></div>}
+      </div>}
     </main>
   );
 }
