@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Award, BarChart3, BookOpen, Check, ChevronLeft, ChevronRight, Clock3, Flame, Gauge, Gem, LockKeyhole, Mail, Orbit as OrbitIcon, Play, Rocket, School, Shield, Sparkles, Swords, Target, Trophy, UserRound, Volume2, VolumeX, X, Zap } from "lucide-react";
 
 const players = [
@@ -39,6 +39,38 @@ export default function Home() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [introMuted, setIntroMuted] = useState(true);
+  const [videoBlocked, setVideoBlocked] = useState(false);
+  const introVideoRef = useRef<HTMLVideoElement>(null);
+
+  const playIntro = () => {
+    const video = introVideoRef.current;
+    if (!video) return;
+    video.muted = introMuted;
+    video.play().then(() => setVideoBlocked(false)).catch(() => setVideoBlocked(true));
+  };
+
+  const toggleIntroSound = () => {
+    const video = introVideoRef.current;
+    const nextMuted = !introMuted;
+    setIntroMuted(nextMuted);
+    if (video) {
+      video.muted = nextMuted;
+      if (video.paused) void video.play().catch(() => setVideoBlocked(true));
+    }
+  };
+
+  useEffect(() => {
+    if (!onboarding) return;
+    const video = introVideoRef.current;
+    if (!video) return;
+    video.defaultMuted = true;
+    video.muted = true;
+    setIntroMuted(true);
+    const attempt = () => void video.play().then(() => setVideoBlocked(false)).catch(() => setVideoBlocked(true));
+    attempt();
+    video.addEventListener("canplay", attempt, { once: true });
+    return () => video.removeEventListener("canplay", attempt);
+  }, [onboarding]);
 
   const openPlacement = () => {
     if (!profileReady) {
@@ -189,10 +221,11 @@ export default function Home() {
       <footer className="footer"><div className="brand"><span className="brand-mark">戰</span><span><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></span></div><p>점수가 아닌 성장을 경쟁하는 모의고사 랭킹전</p><span>© 2026 WAR OF MASTERS</span></footer>
 
       {onboarding && <div className="cinematic-gate" role="dialog" aria-modal="true" aria-label="실수들의 전쟁 입단">
-        <video className="gate-video" autoPlay loop playsInline muted={introMuted} poster="/login-arena.png"><source src="/war-intro.mp4" type="video/mp4"/></video>
+        <video ref={introVideoRef} className="gate-video" autoPlay loop playsInline muted preload="auto" poster="/login-arena.png" onPlaying={()=>setVideoBlocked(false)} onError={()=>setVideoBlocked(true)}><source src="/war-intro.mp4" type="video/mp4"/></video>
         <div className="gate-blur"/><div className="gate-vignette"/>
-        <header className="gate-nav"><a className="gate-brand" href="#top"><span>戰</span><p><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></p></a><nav><a href="#rank-system">랭크 시스템</a><a href="#forge">전투체</a><a href="#ranking">명예의 전당</a></nav><button className="liquid-glass sound-toggle" onClick={()=>setIntroMuted(!introMuted)} aria-label={introMuted?"영상 소리 켜기":"영상 소리 끄기"}>{introMuted?<VolumeX/>:<Volume2/>}</button></header>
-        <section className="gate-story"><div className="gate-meta"><span>2026 SEASON 08</span><i/><span>전국 모의고사 랭킹전</span><i/><span>15,842 CHALLENGERS</span></div><h1>실수는 끝이 아니다.<br/><em>전설의 시작이다.</em></h1><p>같은 시험지, 같은 시간. 끝까지 풀어낸 자만이<br/>자신의 이름을 전장에 새길 수 있다.</p><div><button className="gate-play" onClick={()=>document.querySelector<HTMLVideoElement>('.gate-video')?.play()}><Play/>시네마틱 재생</button><span>NEXT BATTLE · 08.01 21:00</span></div></section>
+        {videoBlocked&&<button className="video-unlock" onClick={playIntro}><Play/><span><b>시네마틱 시작</b><small>브라우저에서 재생이 일시 중지됐습니다.</small></span></button>}
+        <header className="gate-nav"><a className="gate-brand" href="#top"><span>戰</span><p><b>실수들의 전쟁</b><small>WAR OF MASTERS</small></p></a><nav><a href="#rank-system">랭크 시스템</a><a href="#forge">전투체</a><a href="#ranking">명예의 전당</a></nav><button className="liquid-glass sound-toggle" onClick={toggleIntroSound} aria-label={introMuted?"영상 소리 켜기":"영상 소리 끄기"}>{introMuted?<VolumeX/>:<Volume2/>}</button></header>
+        <section className="gate-story"><div className="gate-meta"><span>2026 SEASON 08</span><i/><span>전국 모의고사 랭킹전</span><i/><span>15,842 CHALLENGERS</span></div><h1>실수는 끝이 아니다.<br/><em>전설의 시작이다.</em></h1><p>같은 시험지, 같은 시간. 끝까지 풀어낸 자만이<br/>자신의 이름을 전장에 새길 수 있다.</p><div><button className="gate-play" onClick={playIntro}><Play/>시네마틱 재생</button><span>NEXT BATTLE · 08.01 21:00</span></div></section>
         <aside className="gate-login">
           <div className="gate-art"><img src="/login-arena.png" alt="실수들의 전쟁 캐릭터 전장"/><div><span>PLACEMENT MATCH</span><b>당신의 첫 티어를 증명하세요.</b></div></div>
           <div className="gate-form"><button className="gate-close" onClick={()=>setOnboarding(false)} aria-label="입단 화면 닫기"><X/></button><div className="gate-progress"><span className={onboardStep>=1?"on":""}/><span className={onboardStep>=2?"on":""}/><span className={onboardStep>=3?"on":""}/><b>0{onboardStep} / 03</b></div>
