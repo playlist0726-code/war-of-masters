@@ -23,6 +23,11 @@ const heroes = [
   { id: "loop", name: "루프", title: "시간을 앞서는 목소리", role: "영어 · 속도 돌파", image: "/loop.png", score: "91", quote: "해석하지 마. 흐름을 타.", skill: "문맥 질주", icon: "A", color: "#52c9c2" },
 ];
 
+const tiers = [
+  ["IRON", "아이언", "0–599"], ["BRONZE", "브론즈", "600–899"], ["SILVER", "실버", "900–1,199"], ["GOLD", "골드", "1,200–1,499"], ["PLATINUM", "플래티넘", "1,500–1,749"],
+  ["EMERALD", "에메랄드", "1,750–1,899"], ["DIAMOND", "다이아몬드", "1,900–2,049"], ["MASTER", "마스터", "2,050–2,199"], ["GRANDMASTER", "그랜드마스터", "2,200–2,349"], ["CHALLENGER", "챌린저", "2,350+"],
+];
+
 export default function Home() {
   const [tab, setTab] = useState("전장");
   const [queued, setQueued] = useState(false);
@@ -40,6 +45,8 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [introMuted, setIntroMuted] = useState(true);
   const [videoBlocked, setVideoBlocked] = useState(false);
+  const [gold, setGold] = useState(2840);
+  const [promotionBooked, setPromotionBooked] = useState(false);
   const introVideoRef = useRef<HTMLVideoElement>(null);
 
   const playIntro = () => {
@@ -105,7 +112,7 @@ export default function Home() {
             <button key={item} className={tab === item ? "active" : ""} onClick={() => selectTab(item)}>{item}</button>
           ))}
         </nav>
-        <button className="profile" onClick={() => setOnboarding(true)}><span className="level">{profileReady ? "01" : "?"}</span><span><b>{profileReady ? nickname : "입단 준비"}</b><small>{profileReady ? `${school} · ROOKIE` : "프로필 설정"}</small></span></button>
+        <div className="profile-cluster"><button className="gold-wallet" aria-label={`보유 골드 ${gold.toLocaleString()}`}><Gem/><span><small>MY GOLD</small><b>{gold.toLocaleString()} G</b></span></button><button className="profile" onClick={() => setOnboarding(true)}><span className="level">{profileReady ? "01" : "?"}</span><span><b>{profileReady ? nickname : "입단 준비"}</b><small>{profileReady ? `${school} · ROOKIE` : "프로필 설정"}</small></span></button></div>
       </header>
 
       <section className="hero" id="top">
@@ -122,7 +129,7 @@ export default function Home() {
         </div>
         <div className="rank-sigil" aria-label="현재 등급 플래티넘 2">
           <div className="sigil-ring ring-one" /><div className="sigil-ring ring-two" />
-          <div className="sigil-core"><span>Ⅲ</span><b>PLATINUM</b><small>1,642 LP</small></div>
+          <div className="sigil-core rank-emblem"><div className="tier-emblem" style={{"--tier-x":"100%","--tier-y":"0%"} as CSSProperties}/><b>PLATINUM Ⅱ</b><small>1,642 LP</small></div>
           <p>상위 <b>7.2%</b></p>
         </div>
       </section>
@@ -145,11 +152,10 @@ export default function Home() {
 
       <section className="rank-system" id="rank-system">
         <div className="section-heading"><div><p className="eyebrow">RANK SYSTEM</p><h2>점수가 실력이 되고, 실력이 계급이 된다.</h2></div><span>2026 시즌 08 규정</span></div>
-        <div className="tier-track" aria-label="랭크 구간">
-          {[
-            ["ROOKIE", "루키", "0–799"], ["BRONZE", "브론즈", "800–1,099"], ["SILVER", "실버", "1,100–1,399"],
-            ["GOLD", "골드", "1,400–1,599"], ["PLATINUM", "플래티넘", "1,600–1,799"], ["DIAMOND", "다이아", "1,800–1,949"], ["MASTER", "마스터", "1,950+"],
-          ].map((tier, index) => <div className={`tier tier-${index}`} key={tier[0]}><i>{index + 1}</i><b>{tier[1]}</b><small>{tier[2]} LP</small></div>)}
+        <div className="tier-track tier-atlas" aria-label="랭크 구간">{tiers.map((tier,index)=><div className={`tier tier-${index} ${index===4?"current":""}`} key={tier[0]}><div className="tier-emblem" style={{"--tier-x":`${(index%5)*25}%`,"--tier-y":index<5?"0%":"100%"} as CSSProperties}/><span>{tier[0]}</span><b>{tier[1]}</b><small>{tier[2]} LP</small>{index===4&&<em>CURRENT</em>}</div>)}</div>
+        <div className="promotion-hall">
+          <article className="promotion-card"><div className="promotion-crest"><div className="tier-emblem" style={{"--tier-x":"100%","--tier-y":"0%"} as CSSProperties}/><span>PLATINUM Ⅱ</span></div><div className="promotion-copy"><small>NEXT PROMOTION</small><h3>다이아몬드 승급전</h3><p>이번 달 랭크전에서 상위 12%와 수학 정확도 88%를 달성하면 도전할 수 있어요.</p><div><i><span style={{width:"74%"}}/></i><b>조건 달성 74%</b></div></div><div className="promotion-price"><span>ENTRY COST</span><b><Gem/>{promotionBooked?"예약 완료":"600 G"}</b><button disabled={promotionBooked||gold<600} onClick={()=>{setGold(gold-600);setPromotionBooked(true)}}>{promotionBooked?<><Check/>승급전 예약됨</>:<>골드로 도전권 예약<ChevronRight/></>}</button></div></article>
+          <div className="gold-rules"><div><span className="gold-orb"><Gem/></span><p><small>GOLD ECONOMY</small><b>공부해서 얻고, 도전에 사용하세요.</b></p></div><ul><li><span>DAILY</span><b>오늘의 훈련 완료</b><em>+20 G</em></li><li><span>EXAM</span><b>모의고사 완주</b><em>+80 G</em></li><li><span>DUEL</span><b>라이벌 결투 승리</b><em>+50 G</em></li></ul><p><Shield/>골드로 티어를 직접 구매할 수 없습니다. 승급전 참가와 캐릭터 꾸미기에만 사용되며, 티어는 시험 성적으로 결정됩니다.</p></div>
         </div>
         <div className="rank-explain">
           <article><span><BarChart3/>01</span><h3>기본 점수</h3><p>원점수와 전국 백분위를 반영합니다. 학년과 상관없이 동일한 기준으로 경쟁합니다.</p><strong>최대 +120 LP</strong></article>
@@ -191,7 +197,7 @@ export default function Home() {
         <div className="section-heading"><div><p className="eyebrow">MY BATTLE RECORD</p><h2>이번 시즌, 당신의 전적</h2></div><span>시즌 종료까지 <b>23일</b></span></div>
         <div className="stat-grid">
           <article className="rank-card">
-            <div><span className="mini-crest">P</span><p><small>현재 랭크</small><strong>플래티넘 Ⅱ</strong><em>1,642 LP</em></p></div>
+            <div><span className="mini-crest"><i className="tier-emblem" style={{"--tier-x":"100%","--tier-y":"0%"} as CSSProperties}/></span><p><small>현재 랭크</small><strong>플래티넘 Ⅱ</strong><em>1,642 LP</em></p></div>
             <div className="progress"><span style={{ width: "64%" }} /></div>
             <footer><span>다이아 승급까지</span><b>358 LP</b></footer>
           </article>
