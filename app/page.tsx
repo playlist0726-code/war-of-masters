@@ -19,6 +19,12 @@ const subjects = [
 export default function Home() {
   const [tab, setTab] = useState("전장");
   const [queued, setQueued] = useState(false);
+  const [duel, setDuel] = useState(false);
+
+  const selectTab = (item: string) => {
+    setTab(item);
+    if (item === "랭킹") requestAnimationFrame(() => document.querySelector("#rank-system")?.scrollIntoView({ behavior: "smooth" }));
+  };
 
   return (
     <main>
@@ -29,7 +35,7 @@ export default function Home() {
         </a>
         <nav aria-label="주요 메뉴">
           {["전장", "랭킹", "기록실", "상점"].map((item) => (
-            <button key={item} className={tab === item ? "active" : ""} onClick={() => setTab(item)}>{item}</button>
+            <button key={item} className={tab === item ? "active" : ""} onClick={() => selectTab(item)}>{item}</button>
           ))}
         </nav>
         <div className="profile"><span className="level">27</span><span><b>막판역전</b><small>PLATINUM Ⅱ</small></span></div>
@@ -52,6 +58,40 @@ export default function Home() {
           <div className="sigil-core"><span>Ⅲ</span><b>PLATINUM</b><small>1,642 LP</small></div>
           <p>상위 <b>7.2%</b></p>
         </div>
+      </section>
+
+      <section className="rank-system" id="rank-system">
+        <div className="section-heading"><div><p className="eyebrow">RANK SYSTEM</p><h2>점수가 실력이 되고, 실력이 계급이 된다.</h2></div><span>2026 시즌 08 규정</span></div>
+        <div className="tier-track" aria-label="랭크 구간">
+          {[
+            ["ROOKIE", "루키", "0–799"], ["BRONZE", "브론즈", "800–1,099"], ["SILVER", "실버", "1,100–1,399"],
+            ["GOLD", "골드", "1,400–1,599"], ["PLATINUM", "플래티넘", "1,600–1,799"], ["DIAMOND", "다이아", "1,800–1,949"], ["MASTER", "마스터", "1,950+"],
+          ].map((tier, index) => <div className={`tier tier-${index}`} key={tier[0]}><i>{index + 1}</i><b>{tier[1]}</b><small>{tier[2]} LP</small></div>)}
+        </div>
+        <div className="rank-explain">
+          <article><span>01</span><h3>기본 점수</h3><p>원점수와 전국 백분위를 반영합니다. 학년과 상관없이 동일한 기준으로 경쟁합니다.</p><strong>최대 +120 LP</strong></article>
+          <article><span>02</span><h3>전투 보너스</h3><p>연속 정답, 남은 시간, 고난도 문항 정답에 추가 점수가 붙습니다.</p><strong>최대 +30 LP</strong></article>
+          <article><span>03</span><h3>성장 보정</h3><p>지난 시험보다 성장한 학생도 보상받습니다. 낮은 점수에서 출발해도 역전할 수 있습니다.</p><strong>최대 +20 LP</strong></article>
+        </div>
+        <div className="season-rule"><b>핵심 원칙</b><p>한 번의 낮은 점수로 크게 강등되지 않습니다. 최근 3회 중 가장 좋은 2회의 성적을 반영해 시험 불안과 컨디션 변수를 줄입니다.</p></div>
+      </section>
+
+      <section className="forge" id="forge">
+        <div className="forge-stage" aria-label="성적으로 성장하는 캐릭터 부품">
+          <div className="orbit orbit-a"><span>정확도 코어</span></div><div className="orbit orbit-b"><span>속도 모듈</span></div>
+          <div className="fighter"><i className="fighter-head"/><i className="fighter-body"/><i className="fighter-arm left"/><i className="fighter-arm right"/><b>LV. 27</b></div>
+          <div className="part-label label-a"><b>EPIC</b>청명한 사고 코어</div><div className="part-label label-b"><b>RARE</b>고속 연산 장갑</div>
+        </div>
+        <div className="forge-copy"><p className="eyebrow">STUDY FORGE</p><h2>매일의 점수가<br /><em>나만의 전투체</em>를 만든다.</h2><p>캐릭터는 돈으로 강해지지 않습니다. 국어·수학·영어·탐구 성적이 각각 다른 부품을 성장시키고, 꾸준함이 외형과 능력을 바꿉니다.</p>
+          <div className="reward-list"><div><i>국</i><span><b>기억 회로</b>독해력 · 연속 정답</span><strong>86</strong></div><div><i>수</i><span><b>연산 코어</b>고난도 · 풀이 속도</span><strong>94</strong></div><div><i>영</i><span><b>신호 렌즈</b>어휘력 · 정확도</span><strong>91</strong></div></div>
+          <div className="unlock"><span>다음 부품 해금</span><b>수학 3회 연속 92점 이상</b><div><i style={{width:"72%"}}/></div></div>
+        </div>
+      </section>
+
+      <section className="duel-zone">
+        <div><p className="eyebrow">RIVAL DUEL</p><h2>친구의 기록에 결투를 신청하세요.</h2><p>같은 과목·같은 난이도의 20문항으로 맞붙습니다. 실시간 접속이 아니어도 상대의 기록과 대결할 수 있어요.</p></div>
+        <div className="versus"><span><i>27</i><b>막판역전</b><small>PLATINUM Ⅱ</small></span><strong>VS</strong><span><i>31</i><b>불꽃연필</b><small>PLATINUM Ⅰ</small></span></div>
+        <button onClick={() => setDuel(true)}>{duel ? "결투 신청 완료 ✓" : "결투 신청하기"}</button>
       </section>
 
       <section className="dashboard" aria-label="내 전적 요약">
