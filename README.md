@@ -1,3 +1,13 @@
+# War of Masters — Assessment Game UI
+
+**[Matths project context](https://playlist0726-code.github.io/projects/matths/)** · [Portfolio](https://playlist0726-code.github.io/)
+
+A React interface prototype for game-like mathematics assessment and progression, developed as part of Junsu (Michael) Kim’s collaborative EdTech product work. The UI includes onboarding, a placement exam flow, ranks, character progression, and asynchronous duel concepts.
+
+**Current stage:** frontend demonstration. Authentication, rankings, scoring, matching, and persistence still need real service integration. No learner, revenue, or learning-outcome metrics are claimed. See the original implementation notes and asset-rights cautions below before distributing the prototype more widely.
+
+---
+
 # 실수들의 전쟁 — War of Masters
 
 고등학생이 동일한 모의고사를 풀고 랭크, 캐릭터, 전투 부품을 성장시키는 모의고사 랭킹전 웹 프론트엔드입니다.
